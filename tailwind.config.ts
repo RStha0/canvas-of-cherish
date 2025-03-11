@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				scrapbook: {
+					page: '#faf7f2',
+					cream: '#f8f4e9',
+					beige: '#e8e1d5',
+					brown: '#a18e7e',
+					peach: '#ffd6cc',
+					sage: '#d1e0c5',
+					lavender: '#e0d6ea',
+					skyblue: '#c6e2f2',
 				}
 			},
 			borderRadius: {
@@ -70,26 +81,38 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'page-flip': {
+					'0%': { transform: 'rotateY(0deg)' },
+					'100%': { transform: 'rotateY(180deg)' }
+				},
+				'float': {
+					'0%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' },
+					'100%': { transform: 'translateY(0px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'page-flip': 'page-flip 0.5s ease-in-out',
+				'float': 'float 4s ease-in-out infinite'
+			},
+			fontFamily: {
+				handwritten: ['Pacifico', 'cursive'],
+				script: ['Dancing Script', 'cursive']
+			},
+			boxShadow: {
+				'page': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+				'element': '0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+				'sticker': '0 2px 5px rgba(0, 0, 0, 0.08)',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
