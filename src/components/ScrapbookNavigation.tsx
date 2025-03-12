@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface ScrapbookNavigationProps {
   currentPage: number;
@@ -15,6 +16,8 @@ export const ScrapbookNavigation = ({
   onPageChange,
   onAddPage
 }: ScrapbookNavigationProps) => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   const handlePrevious = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -31,18 +34,18 @@ export const ScrapbookNavigation = ({
     <div className="flex items-center justify-between w-full py-4">
       <Button
         variant="outline"
-        size="sm"
+        size={isMobile ? "icon" : "sm"}
         onClick={handlePrevious}
         disabled={currentPage <= 1}
-        className="gap-1"
+        className={isMobile ? "rounded-full" : "gap-1"}
       >
         <ChevronLeft className="h-4 w-4" />
-        <span>Previous</span>
+        {!isMobile && <span>Previous</span>}
       </Button>
 
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">
-          Page {currentPage} of {totalPages}
+          {isMobile ? `${currentPage}/${totalPages}` : `Page ${currentPage} of ${totalPages}`}
         </span>
         <Button
           variant="outline"
@@ -56,12 +59,12 @@ export const ScrapbookNavigation = ({
 
       <Button
         variant="outline"
-        size="sm"
+        size={isMobile ? "icon" : "sm"}
         onClick={handleNext}
         disabled={currentPage >= totalPages}
-        className="gap-1"
+        className={isMobile ? "rounded-full" : "gap-1"}
       >
-        <span>Next</span>
+        {!isMobile && <span>Next</span>}
         <ChevronRight className="h-4 w-4" />
       </Button>
     </div>

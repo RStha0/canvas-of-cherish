@@ -72,19 +72,59 @@ export const ScrapbookPageCanvas = ({
       onElementsChange(updatedElements);
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging || !activeElement || !canvasRef.current || e.touches.length === 0) return;
+      
+      const touch = e.touches[0];
+      const canvas = canvasRef.current;
+      const canvasRect = canvas.getBoundingClientRect();
+
+      // Calculate new position for touch devices, keeping the element within canvas bounds
+      const newX = Math.max(0, Math.min(touch.clientX - canvasRect.left - dragOffset.x, canvasRect.width - 100));
+      const newY = Math.max(0, Math.min(touch.clientY - canvasRect.top - dragOffset.y, canvasRect.height - 100));
+
+      const updatedElements = elements.map(el => {
+        if (el.id === activeElement) {
+          return {
+            ...el,
+            x: newX,
+            y: newY
+          };
+        }
+        return el;
+      });
+
+      onElementsChange(updatedElements);
+      e.preventDefault(); // Prevent page scrolling while dragging
+    };
+
     const handleMouseUp = () => {
       setIsDragging(false);
       setActiveElement(null);
     };
 
+    const handleTouchEnd = () => {
+      setIsDragging(false);
+      setActiveElement(null);
+    };
+
     if (isDragging) {
+      // Mouse events
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
+      
+      // Touch events
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd);
+      document.addEventListener("touchcancel", handleTouchEnd);
     }
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+      document.removeEventListener("touchcancel", handleTouchEnd);
     };
   }, [isDragging, activeElement, elements, dragOffset, onElementsChange]);
 
