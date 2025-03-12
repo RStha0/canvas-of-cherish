@@ -5,12 +5,14 @@ import { Image, Type, Sticker } from "lucide-react";
 interface ScrapbookElementComponentProps {
   element: ScrapbookElement;
   onMouseDown: (e: React.MouseEvent) => void;
+  onDoubleClick?: (e: React.MouseEvent) => void;
   isActive: boolean;
 }
 
 export const ScrapbookElementComponent = ({
   element,
   onMouseDown,
+  onDoubleClick,
   isActive
 }: ScrapbookElementComponentProps) => {
   const commonStyles = {
@@ -41,6 +43,7 @@ export const ScrapbookElementComponent = ({
             fontWeight: textData.fontWeight || 'normal'
           }}
           onMouseDown={onMouseDown}
+          onDoubleClick={onDoubleClick}
         >
           {textData.content}
         </div>
@@ -59,6 +62,7 @@ export const ScrapbookElementComponent = ({
             transform: `${isActive ? 'scale(1.02)' : 'scale(1)'} rotate(${imageData.rotation || 0}deg)`,
           }}
           onMouseDown={onMouseDown}
+          onDoubleClick={onDoubleClick}
         >
           <img
             src={imageData.src}
@@ -81,6 +85,7 @@ export const ScrapbookElementComponent = ({
             transform: `${isActive ? 'scale(1.05)' : 'scale(1)'} rotate(${stickerData.rotation || 0}deg)`,
           }}
           onMouseDown={onMouseDown}
+          onDoubleClick={onDoubleClick}
         >
           <img
             src={stickerData.src}
@@ -102,6 +107,7 @@ export const ScrapbookElementComponent = ({
             backgroundColor: '#f3f4f6'
           }}
           onMouseDown={onMouseDown}
+          onDoubleClick={onDoubleClick}
         >
           Unknown Element
         </div>

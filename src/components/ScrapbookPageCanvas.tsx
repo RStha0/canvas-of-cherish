@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { ScrapbookElement, ElementType } from "@/types/scrapbook";
 import { ScrapbookElementComponent } from "./ScrapbookElementComponent";
@@ -6,12 +7,14 @@ interface ScrapbookPageCanvasProps {
   elements: ScrapbookElement[];
   onElementsChange: (elements: ScrapbookElement[]) => void;
   background?: string;
+  onEditElement?: (element: ScrapbookElement) => void;
 }
 
 export const ScrapbookPageCanvas = ({
   elements,
   onElementsChange,
-  background = "bg-scrapbook-page texture-paper"
+  background = "bg-scrapbook-page texture-paper",
+  onEditElement
 }: ScrapbookPageCanvasProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [activeElement, setActiveElement] = useState<string | null>(null);
@@ -45,6 +48,17 @@ export const ScrapbookPageCanvas = ({
     onElementsChange(updatedElements);
 
     e.preventDefault();
+  };
+
+  const handleElementDoubleClick = (
+    e: React.MouseEvent,
+    elementId: string
+  ) => {
+    const element = elements.find(el => el.id === elementId);
+    if (!element || !onEditElement) return;
+    
+    onEditElement(element);
+    e.stopPropagation();
   };
 
   useEffect(() => {
@@ -138,6 +152,7 @@ export const ScrapbookPageCanvas = ({
           key={element.id}
           element={element}
           onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          onDoubleClick={(e) => handleElementDoubleClick(e, element.id)}
           isActive={element.id === activeElement}
         />
       ))}

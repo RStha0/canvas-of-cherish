@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ScrapbookHeader } from "@/components/ScrapbookHeader";
@@ -6,6 +5,7 @@ import { ScrapbookPageCanvas } from "@/components/ScrapbookPageCanvas";
 import { ElementToolbar } from "@/components/ElementToolbar";
 import { MobileElementToolbar } from "@/components/MobileElementToolbar";
 import { ScrapbookNavigation } from "@/components/ScrapbookNavigation";
+import { ElementEditor } from "@/components/ElementEditor";
 import { ScrapbookElement, ElementType, ScrapbookPage as ScrapbookPageType } from "@/types/scrapbook";
 import { demoScrapbook } from "@/data/mockData";
 import { toast } from "sonner";
@@ -15,6 +15,8 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 const ScrapbookPage = () => {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [scrapbook, setScrapbook] = useState(demoScrapbook);
+  const [currentEditingElement, setCurrentEditingElement] = useState<ScrapbookElement | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const currentPage = scrapbook.pages[currentPageIndex];
   const canvasRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -32,6 +34,21 @@ const ScrapbookPage = () => {
       pages: updatedPages,
       updatedAt: new Date()
     });
+  };
+
+  const handleElementUpdate = (updatedElement: ScrapbookElement) => {
+    const updatedElements = currentPage.elements.map(el => 
+      el.id === updatedElement.id ? updatedElement : el
+    );
+    
+    handleElementsChange(updatedElements);
+    setIsEditorOpen(false);
+    setCurrentEditingElement(null);
+  };
+
+  const handleEditElement = (element: ScrapbookElement) => {
+    setCurrentEditingElement(element);
+    setIsEditorOpen(true);
   };
 
   const handleAddElement = (elementType: ElementType) => {
@@ -101,6 +118,13 @@ const ScrapbookPage = () => {
     }
     
     handleElementsChange([...currentPage.elements, newElement]);
+    
+    // Open the editor immediately for new elements on mobile
+    if (isMobile) {
+      setTimeout(() => {
+        handleEditElement(newElement);
+      }, 100);
+    }
   };
 
   const handleChangeBackground = (background: string) => {
@@ -157,18 +181,19 @@ const ScrapbookPage = () => {
     <div className="min-h-screen flex flex-col bg-secondary">
       <ScrapbookHeader />
       
-      <main className="flex-1 container py-4 md:py-8 relative">
-        <h1 className="text-2xl md:text-3xl font-handwritten text-primary mb-4 md:mb-6">
+      <main className="flex-1 container px-0 sm:px-4 py-2 md:py-8 relative">
+        <h1 className="text-2xl md:text-3xl font-handwritten text-primary mx-4 mb-2 md:mb-6">
           {scrapbook.title}
         </h1>
         
-        <div className={`grid grid-cols-1 ${isMobile ? '' : 'lg:grid-cols-4'} gap-8`}>
+        <div className={`grid grid-cols-1 ${isMobile ? '' : 'lg:grid-cols-4'} gap-4 md:gap-8`}>
           <div className={`${isMobile ? 'col-span-1' : 'lg:col-span-3'}`}>
-            <div ref={canvasRef}>
+            <div ref={canvasRef} className="px-2">
               <ScrapbookPageCanvas 
                 elements={currentPage.elements}
                 onElementsChange={handleElementsChange}
                 background={currentPage.background}
+                onEditElement={handleEditElement}
               />
             </div>
             
@@ -200,6 +225,13 @@ const ScrapbookPage = () => {
           />
         )}
       </main>
+
+      <ElementEditor 
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        element={currentEditingElement}
+        onElementUpdate={handleElementUpdate}
+      />
     </div>
   );
 };
