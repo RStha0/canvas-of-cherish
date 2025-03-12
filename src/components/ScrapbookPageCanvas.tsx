@@ -1,6 +1,5 @@
-
 import { useState, useRef, useEffect } from "react";
-import { ScrapbookElement, ElementType, ImageElementData, StickerElementData } from "@/types/scrapbook";
+import { ScrapbookElement, ElementType, ImageElementData, StickerElementData, TextElementData } from "@/types/scrapbook";
 import { ScrapbookElementComponent } from "./ScrapbookElementComponent";
 import { toast } from "sonner";
 
@@ -32,14 +31,12 @@ export const ScrapbookPageCanvas = ({
     setActiveElement(elementId);
     setIsDragging(true);
 
-    // Calculate the offset from the mouse position to the element's top-left corner
     const rect = element.getBoundingClientRect();
     setDragOffset({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     });
 
-    // Bring the element to the front by increasing its z-index
     const updatedElements = elements.map(el => {
       if (el.id === elementId) {
         return { ...el, zIndex: Math.max(...elements.map(e => e.zIndex)) + 1 };
@@ -100,34 +97,41 @@ export const ScrapbookPageCanvas = ({
   const handleResizeElement = (elementId: string, scale: number) => {
     const updatedElements = elements.map(el => {
       if (el.id === elementId) {
-        if (el.type === ElementType.IMAGE) {
-          const imageData = el.data as ImageElementData;
-          return {
-            ...el,
-            data: {
-              ...imageData,
-              width: Math.max(50, Math.round((imageData.width || 200) * scale)),
-              height: Math.max(50, Math.round((imageData.height || 150) * scale))
-            }
-          };
-        } else if (el.type === ElementType.STICKER) {
-          const stickerData = el.data as StickerElementData;
-          return {
-            ...el,
-            data: {
-              ...stickerData,
-              width: Math.max(30, Math.round((stickerData.width || 80) * scale)),
-              height: Math.max(30, Math.round((stickerData.height || 80) * scale))
-            }
-          };
-        } else if (el.type === ElementType.TEXT) {
-          return {
-            ...el,
-            data: {
-              ...el.data,
-              fontSize: Math.max(10, Math.round((el.data.fontSize || 18) * scale))
-            }
-          };
+        switch (el.type) {
+          case ElementType.IMAGE: {
+            const imageData = el.data as ImageElementData;
+            return {
+              ...el,
+              data: {
+                ...imageData,
+                width: Math.max(50, Math.round((imageData.width || 200) * scale)),
+                height: Math.max(50, Math.round((imageData.height || 150) * scale))
+              }
+            };
+          }
+          case ElementType.STICKER: {
+            const stickerData = el.data as StickerElementData;
+            return {
+              ...el,
+              data: {
+                ...stickerData,
+                width: Math.max(30, Math.round((stickerData.width || 80) * scale)),
+                height: Math.max(30, Math.round((stickerData.height || 80) * scale))
+              }
+            };
+          }
+          case ElementType.TEXT: {
+            const textData = el.data as TextElementData;
+            return {
+              ...el,
+              data: {
+                ...textData,
+                fontSize: Math.max(10, Math.round((textData.fontSize || 18) * scale))
+              }
+            };
+          }
+          default:
+            return el;
         }
       }
       return el;
@@ -142,7 +146,6 @@ export const ScrapbookPageCanvas = ({
       const canvas = canvasRef.current;
       const canvasRect = canvas.getBoundingClientRect();
 
-      // Calculate new position, keeping the element within canvas bounds
       const newX = Math.max(0, Math.min(e.clientX - canvasRect.left - dragOffset.x, canvasRect.width - 100));
       const newY = Math.max(0, Math.min(e.clientY - canvasRect.top - dragOffset.y, canvasRect.height - 100));
 
@@ -167,7 +170,6 @@ export const ScrapbookPageCanvas = ({
       const canvas = canvasRef.current;
       const canvasRect = canvas.getBoundingClientRect();
 
-      // Calculate new position for touch devices, keeping the element within canvas bounds
       const newX = Math.max(0, Math.min(touch.clientX - canvasRect.left - dragOffset.x, canvasRect.width - 100));
       const newY = Math.max(0, Math.min(touch.clientY - canvasRect.top - dragOffset.y, canvasRect.height - 100));
 
@@ -183,7 +185,7 @@ export const ScrapbookPageCanvas = ({
       });
 
       onElementsChange(updatedElements);
-      e.preventDefault(); // Prevent page scrolling while dragging
+      e.preventDefault();
     };
 
     const handleMouseUp = () => {
@@ -194,7 +196,6 @@ export const ScrapbookPageCanvas = ({
       setIsDragging(false);
     };
     
-    // For clicks outside elements, deselect active element
     const handleCanvasClick = (e: MouseEvent) => {
       if (e.target === canvasRef.current) {
         setActiveElement(null);
@@ -202,11 +203,9 @@ export const ScrapbookPageCanvas = ({
     };
 
     if (isDragging) {
-      // Mouse events
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
       
-      // Touch events
       document.addEventListener("touchmove", handleTouchMove, { passive: false });
       document.addEventListener("touchend", handleTouchEnd);
       document.addEventListener("touchcancel", handleTouchEnd);
