@@ -1,7 +1,8 @@
 
 import { useState, useRef, useEffect } from "react";
-import { ScrapbookElement, ElementType } from "@/types/scrapbook";
+import { ScrapbookElement, ElementType, ImageElementData, StickerElementData } from "@/types/scrapbook";
 import { ScrapbookElementComponent } from "./ScrapbookElementComponent";
+import { toast } from "sonner";
 
 interface ScrapbookPageCanvasProps {
   elements: ScrapbookElement[];
@@ -61,6 +62,79 @@ export const ScrapbookPageCanvas = ({
     e.stopPropagation();
   };
 
+  const handleRemoveElement = (elementId: string) => {
+    const updatedElements = elements.filter(el => el.id !== elementId);
+    onElementsChange(updatedElements);
+    setActiveElement(null);
+    toast.success("Element removed");
+  };
+
+  const handleRotateElement = (elementId: string, angle: number) => {
+    const updatedElements = elements.map(el => {
+      if (el.id === elementId) {
+        if (el.type === ElementType.IMAGE) {
+          const imageData = el.data as ImageElementData;
+          return {
+            ...el,
+            data: {
+              ...imageData,
+              rotation: angle
+            }
+          };
+        } else if (el.type === ElementType.STICKER) {
+          const stickerData = el.data as StickerElementData;
+          return {
+            ...el,
+            data: {
+              ...stickerData,
+              rotation: angle
+            }
+          };
+        }
+      }
+      return el;
+    });
+    onElementsChange(updatedElements);
+  };
+
+  const handleResizeElement = (elementId: string, scale: number) => {
+    const updatedElements = elements.map(el => {
+      if (el.id === elementId) {
+        if (el.type === ElementType.IMAGE) {
+          const imageData = el.data as ImageElementData;
+          return {
+            ...el,
+            data: {
+              ...imageData,
+              width: Math.max(50, Math.round((imageData.width || 200) * scale)),
+              height: Math.max(50, Math.round((imageData.height || 150) * scale))
+            }
+          };
+        } else if (el.type === ElementType.STICKER) {
+          const stickerData = el.data as StickerElementData;
+          return {
+            ...el,
+            data: {
+              ...stickerData,
+              width: Math.max(30, Math.round((stickerData.width || 80) * scale)),
+              height: Math.max(30, Math.round((stickerData.height || 80) * scale))
+            }
+          };
+        } else if (el.type === ElementType.TEXT) {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              fontSize: Math.max(10, Math.round((el.data.fontSize || 18) * scale))
+            }
+          };
+        }
+      }
+      return el;
+    });
+    onElementsChange(updatedElements);
+  };
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || !activeElement || !canvasRef.current) return;
@@ -114,12 +188,17 @@ export const ScrapbookPageCanvas = ({
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      setActiveElement(null);
     };
 
     const handleTouchEnd = () => {
       setIsDragging(false);
-      setActiveElement(null);
+    };
+    
+    // For clicks outside elements, deselect active element
+    const handleCanvasClick = (e: MouseEvent) => {
+      if (e.target === canvasRef.current) {
+        setActiveElement(null);
+      }
     };
 
     if (isDragging) {
@@ -132,6 +211,8 @@ export const ScrapbookPageCanvas = ({
       document.addEventListener("touchend", handleTouchEnd);
       document.addEventListener("touchcancel", handleTouchEnd);
     }
+    
+    canvasRef.current?.addEventListener("click", handleCanvasClick);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
@@ -139,6 +220,7 @@ export const ScrapbookPageCanvas = ({
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
       document.removeEventListener("touchcancel", handleTouchEnd);
+      canvasRef.current?.removeEventListener("click", handleCanvasClick);
     };
   }, [isDragging, activeElement, elements, dragOffset, onElementsChange]);
 
@@ -154,6 +236,9 @@ export const ScrapbookPageCanvas = ({
           onMouseDown={(e) => handleElementMouseDown(e, element.id)}
           onDoubleClick={(e) => handleElementDoubleClick(e, element.id)}
           isActive={element.id === activeElement}
+          onRemove={handleRemoveElement}
+          onRotate={handleRotateElement}
+          onResize={handleResizeElement}
         />
       ))}
     </div>

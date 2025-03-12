@@ -1,19 +1,25 @@
 
 import { ScrapbookElement, ElementType, TextElementData, ImageElementData, StickerElementData } from "@/types/scrapbook";
-import { Image, Type, Sticker } from "lucide-react";
+import { Trash, RotateCw, Maximize, Minimize } from "lucide-react";
 
 interface ScrapbookElementComponentProps {
   element: ScrapbookElement;
   onMouseDown: (e: React.MouseEvent) => void;
   onDoubleClick?: (e: React.MouseEvent) => void;
   isActive: boolean;
+  onRemove?: (elementId: string) => void;
+  onRotate?: (elementId: string, angle: number) => void;
+  onResize?: (elementId: string, scale: number) => void;
 }
 
 export const ScrapbookElementComponent = ({
   element,
   onMouseDown,
   onDoubleClick,
-  isActive
+  isActive,
+  onRemove,
+  onRotate,
+  onResize
 }: ScrapbookElementComponentProps) => {
   const commonStyles = {
     left: `${element.x}px`,
@@ -21,6 +27,72 @@ export const ScrapbookElementComponent = ({
     zIndex: element.zIndex,
     transform: isActive ? 'scale(1.02)' : 'scale(1)',
     border: isActive ? '2px dashed #6366f1' : 'none'
+  };
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove) {
+      onRemove(element.id);
+    }
+  };
+
+  const handleRotate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRotate) {
+      // Rotate by 15 degrees each click
+      const currentRotation = 
+        element.type === ElementType.IMAGE ? (element.data as ImageElementData).rotation || 0 :
+        element.type === ElementType.STICKER ? (element.data as StickerElementData).rotation || 0 : 0;
+      
+      onRotate(element.id, (currentRotation + 15) % 360);
+    }
+  };
+
+  const handleResize = (increase: boolean) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onResize) {
+      // Scale by 10% each click
+      const scale = increase ? 1.1 : 0.9;
+      onResize(element.id, scale);
+    }
+  };
+
+  // Controls overlay that shows when element is active
+  const renderControls = () => {
+    if (!isActive) return null;
+    
+    return (
+      <div className="absolute -top-10 right-0 flex gap-1 bg-white/80 p-1 rounded-md shadow-sm z-50">
+        <button 
+          onClick={handleRotate}
+          className="p-1 hover:bg-gray-100 rounded-md"
+          aria-label="Rotate element"
+        >
+          <RotateCw className="h-4 w-4 text-gray-700" />
+        </button>
+        <button 
+          onClick={handleResize(true)}
+          className="p-1 hover:bg-gray-100 rounded-md"
+          aria-label="Increase size"
+        >
+          <Maximize className="h-4 w-4 text-gray-700" />
+        </button>
+        <button 
+          onClick={handleResize(false)}
+          className="p-1 hover:bg-gray-100 rounded-md"
+          aria-label="Decrease size"
+        >
+          <Minimize className="h-4 w-4 text-gray-700" />
+        </button>
+        <button 
+          onClick={handleRemove}
+          className="p-1 hover:bg-red-100 rounded-md"
+          aria-label="Remove element"
+        >
+          <Trash className="h-4 w-4 text-red-500" />
+        </button>
+      </div>
+    );
   };
 
   switch (element.type) {
@@ -45,6 +117,7 @@ export const ScrapbookElementComponent = ({
           onMouseDown={onMouseDown}
           onDoubleClick={onDoubleClick}
         >
+          {renderControls()}
           {textData.content}
         </div>
       );
@@ -64,6 +137,7 @@ export const ScrapbookElementComponent = ({
           onMouseDown={onMouseDown}
           onDoubleClick={onDoubleClick}
         >
+          {renderControls()}
           <img
             src={imageData.src}
             alt={imageData.alt || "Scrapbook image"}
@@ -87,6 +161,7 @@ export const ScrapbookElementComponent = ({
           onMouseDown={onMouseDown}
           onDoubleClick={onDoubleClick}
         >
+          {renderControls()}
           <img
             src={stickerData.src}
             alt={stickerData.alt || "Sticker"}
@@ -109,6 +184,7 @@ export const ScrapbookElementComponent = ({
           onMouseDown={onMouseDown}
           onDoubleClick={onDoubleClick}
         >
+          {renderControls()}
           Unknown Element
         </div>
       );

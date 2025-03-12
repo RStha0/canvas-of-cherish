@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ScrapbookHeader } from "@/components/ScrapbookHeader";
@@ -44,6 +45,14 @@ const ScrapbookPage = () => {
     handleElementsChange(updatedElements);
     setIsEditorOpen(false);
     setCurrentEditingElement(null);
+  };
+
+  const handleElementRemove = (elementId: string) => {
+    const updatedElements = currentPage.elements.filter(el => el.id !== elementId);
+    handleElementsChange(updatedElements);
+    setIsEditorOpen(false);
+    setCurrentEditingElement(null);
+    toast.success("Element removed");
   };
 
   const handleEditElement = (element: ScrapbookElement) => {
@@ -182,10 +191,6 @@ const ScrapbookPage = () => {
       <ScrapbookHeader />
       
       <main className="flex-1 container px-0 sm:px-4 py-2 md:py-8 relative">
-        <h1 className="text-2xl md:text-3xl font-handwritten text-primary mx-4 mb-2 md:mb-6">
-          {scrapbook.title}
-        </h1>
-        
         <div className={`grid grid-cols-1 ${isMobile ? '' : 'lg:grid-cols-4'} gap-4 md:gap-8`}>
           <div className={`${isMobile ? 'col-span-1' : 'lg:col-span-3'}`}>
             <div ref={canvasRef} className="px-2">
@@ -231,6 +236,7 @@ const ScrapbookPage = () => {
         onClose={() => setIsEditorOpen(false)}
         element={currentEditingElement}
         onElementUpdate={handleElementUpdate}
+        onElementRemove={handleElementRemove}
       />
     </div>
   );

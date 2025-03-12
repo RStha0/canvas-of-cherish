@@ -4,21 +4,31 @@ import { TextEditor } from "./editors/TextEditor";
 import { ImageEditor } from "./editors/ImageEditor";
 import { StickerSelector } from "./editors/StickerSelector";
 import { ScrapbookElement, ElementType } from "@/types/scrapbook";
+import { X } from "lucide-react";
 
 interface ElementEditorProps {
   isOpen: boolean;
   onClose: () => void;
   element: ScrapbookElement | null;
   onElementUpdate: (updatedElement: ScrapbookElement) => void;
+  onElementRemove?: (elementId: string) => void;
 }
 
 export const ElementEditor = ({ 
   isOpen, 
   onClose, 
   element, 
-  onElementUpdate 
+  onElementUpdate,
+  onElementRemove
 }: ElementEditorProps) => {
   if (!element) return null;
+
+  const handleRemove = () => {
+    if (onElementRemove) {
+      onElementRemove(element.id);
+      onClose();
+    }
+  };
 
   // Different editor based on element type
   const renderEditor = () => {
@@ -37,8 +47,17 @@ export const ElementEditor = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader className="flex items-center justify-between">
           <DialogTitle>Edit {element.type}</DialogTitle>
+          {onElementRemove && (
+            <button 
+              onClick={handleRemove}
+              className="p-1 hover:bg-red-100 rounded-md"
+              aria-label="Remove element"
+            >
+              <X className="h-4 w-4 text-red-500" />
+            </button>
+          )}
         </DialogHeader>
         {renderEditor()}
       </DialogContent>

@@ -123,9 +123,17 @@
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .scrapbook-canvas {
-      height: calc(100vh - 200px);
+      height: calc(100vh - 140px); /* Increased height */
       aspect-ratio: unset;
       @apply p-4;
+    }
+    
+    /* Controls styles for mobile */
+    .scrapbook-element .controls,
+    .scrapbook-sticker .controls,
+    .scrapbook-text .controls,
+    .scrapbook-photo .controls {
+      @apply flex absolute -top-8 right-0 bg-white/90 rounded-t-md shadow-sm p-1 gap-1;
     }
   }
 }
