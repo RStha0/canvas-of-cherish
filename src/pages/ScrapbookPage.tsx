@@ -228,7 +228,6 @@ const ScrapbookPage = () => {
               totalPages={scrapbook.pages.length}
               onPageChange={handlePageChange}
               onAddPage={handleAddPage}
-              className="mt-2"
             />
             <MobileElementToolbar
               onAddElement={handleAddElement}

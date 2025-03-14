@@ -145,6 +145,14 @@ export const ScrapbookPageCanvas = ({
     onElementsChange(updatedElements);
   };
 
+  const handleElementUpdate = (updatedElement: ScrapbookElement) => {
+    const updatedElements = elements.map(el => 
+      el.id === updatedElement.id ? updatedElement : el
+    );
+    onElementsChange(updatedElements);
+    toast.success("Element updated");
+  };
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || !activeElement || !canvasRef.current) return;
@@ -244,6 +252,7 @@ export const ScrapbookPageCanvas = ({
           onRemove={handleRemoveElement}
           onRotate={handleRotateElement}
           onResize={handleResizeElement}
+          onUpdate={handleElementUpdate}
         />
       ))}
     </div>
