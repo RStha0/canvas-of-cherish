@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { ScrapbookElement, ElementType, ImageElementData, StickerElementData, TextElementData } from "@/types/scrapbook";
 import { ScrapbookElementComponent } from "./ScrapbookElementComponent";
@@ -69,24 +70,29 @@ export const ScrapbookPageCanvas = ({
   const handleRotateElement = (elementId: string, angle: number) => {
     const updatedElements = elements.map(el => {
       if (el.id === elementId) {
-        if (el.type === ElementType.IMAGE) {
-          const imageData = el.data as ImageElementData;
-          return {
-            ...el,
-            data: {
-              ...imageData,
-              rotation: angle
-            }
-          };
-        } else if (el.type === ElementType.STICKER) {
-          const stickerData = el.data as StickerElementData;
-          return {
-            ...el,
-            data: {
-              ...stickerData,
-              rotation: angle
-            }
-          };
+        switch (el.type) {
+          case ElementType.IMAGE: {
+            const imageData = el.data as ImageElementData;
+            return {
+              ...el,
+              data: {
+                ...imageData,
+                rotation: angle
+              }
+            };
+          }
+          case ElementType.STICKER: {
+            const stickerData = el.data as StickerElementData;
+            return {
+              ...el,
+              data: {
+                ...stickerData,
+                rotation: angle
+              }
+            };
+          }
+          default:
+            return el;
         }
       }
       return el;
@@ -226,7 +232,7 @@ export const ScrapbookPageCanvas = ({
   return (
     <div 
       ref={canvasRef} 
-      className={`scrapbook-canvas ${background} page-shadow`}
+      className={`scrapbook-canvas ${background} page-shadow relative`}
     >
       {elements.map((element) => (
         <ScrapbookElementComponent

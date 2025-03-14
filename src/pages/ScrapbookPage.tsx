@@ -10,7 +10,6 @@ import { ElementEditor } from "@/components/ElementEditor";
 import { ScrapbookElement, ElementType, ScrapbookPage as ScrapbookPageType } from "@/types/scrapbook";
 import { demoScrapbook } from "@/data/mockData";
 import { toast } from "sonner";
-import { Share } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 const ScrapbookPage = () => {
@@ -65,7 +64,7 @@ const ScrapbookPage = () => {
     let centerX = 200;
     let centerY = 200;
     
-    if (canvasRef.current && isMobile) {
+    if (canvasRef.current) {
       const rect = canvasRef.current.getBoundingClientRect();
       centerX = rect.width / 2;
       centerY = rect.height / 2;
@@ -102,6 +101,7 @@ const ScrapbookPage = () => {
             alt: "Placeholder image",
             width: 200,
             height: 150,
+            rotation: 0
           }
         };
         break;
@@ -118,6 +118,7 @@ const ScrapbookPage = () => {
             alt: "Heart sticker",
             width: 80,
             height: 80,
+            rotation: 0
           }
         };
         break;
@@ -128,12 +129,10 @@ const ScrapbookPage = () => {
     
     handleElementsChange([...currentPage.elements, newElement]);
     
-    // Open the editor immediately for new elements on mobile
-    if (isMobile) {
-      setTimeout(() => {
-        handleEditElement(newElement);
-      }, 100);
-    }
+    // Open the editor immediately for new elements
+    setTimeout(() => {
+      handleEditElement(newElement);
+    }, 100);
   };
 
   const handleChangeBackground = (background: string) => {
@@ -190,27 +189,28 @@ const ScrapbookPage = () => {
     <div className="min-h-screen flex flex-col bg-secondary">
       <ScrapbookHeader />
       
-      <main className="flex-1 container px-0 sm:px-4 py-2 md:py-8 relative">
-        <div className={`grid grid-cols-1 ${isMobile ? '' : 'lg:grid-cols-4'} gap-4 md:gap-8`}>
-          <div className={`${isMobile ? 'col-span-1' : 'lg:col-span-3'}`}>
-            <div ref={canvasRef} className="px-2">
-              <ScrapbookPageCanvas 
-                elements={currentPage.elements}
-                onElementsChange={handleElementsChange}
-                background={currentPage.background}
-                onEditElement={handleEditElement}
-              />
-            </div>
-            
-            <ScrapbookNavigation 
-              currentPage={currentPageIndex + 1}
-              totalPages={scrapbook.pages.length}
-              onPageChange={handlePageChange}
-              onAddPage={handleAddPage}
+      <main className="flex-1 container px-0 py-0 md:px-4 md:py-8 flex flex-col">
+        <div ref={canvasRef} className="flex-grow flex justify-center items-center">
+          <div className={`w-full h-full ${isMobile ? 'aspect-square max-h-[calc(100vh-170px)]' : ''}`}>
+            <ScrapbookPageCanvas 
+              elements={currentPage.elements}
+              onElementsChange={handleElementsChange}
+              background={currentPage.background}
+              onEditElement={handleEditElement}
             />
           </div>
-          
-          {!isMobile && (
+        </div>
+        
+        {!isMobile && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-8 mt-4">
+            <div className="lg:col-span-3">
+              <ScrapbookNavigation 
+                currentPage={currentPageIndex + 1}
+                totalPages={scrapbook.pages.length}
+                onPageChange={handlePageChange}
+                onAddPage={handleAddPage}
+              />
+            </div>
             <div className="lg:col-span-1">
               <ElementToolbar 
                 onAddElement={handleAddElement}
@@ -218,16 +218,25 @@ const ScrapbookPage = () => {
                 onSave={handleSave}
               />
             </div>
-          )}
-        </div>
+          </div>
+        )}
         
         {isMobile && (
-          <MobileElementToolbar
-            onAddElement={handleAddElement}
-            onChangeBackground={handleChangeBackground}
-            onSave={handleSave}
-            onShare={handleShare}
-          />
+          <>
+            <ScrapbookNavigation 
+              currentPage={currentPageIndex + 1}
+              totalPages={scrapbook.pages.length}
+              onPageChange={handlePageChange}
+              onAddPage={handleAddPage}
+              className="mt-2"
+            />
+            <MobileElementToolbar
+              onAddElement={handleAddElement}
+              onChangeBackground={handleChangeBackground}
+              onSave={handleSave}
+              onShare={handleShare}
+            />
+          </>
         )}
       </main>
 

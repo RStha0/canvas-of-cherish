@@ -101,7 +101,7 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
-          className="scrapbook-text"
+          className="scrapbook-text absolute"
           style={{
             ...commonStyles,
             fontFamily: textData.fontFamily || 'inherit',
@@ -127,12 +127,13 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
-          className="scrapbook-photo"
+          className="scrapbook-photo absolute"
           style={{
             ...commonStyles,
             width: `${imageData.width || 200}px`,
             height: `${imageData.height || 150}px`,
             transform: `${isActive ? 'scale(1.02)' : 'scale(1)'} rotate(${imageData.rotation || 0}deg)`,
+            transformOrigin: 'center',
           }}
           onMouseDown={onMouseDown}
           onDoubleClick={onDoubleClick}
@@ -142,6 +143,7 @@ export const ScrapbookElementComponent = ({
             src={imageData.src}
             alt={imageData.alt || "Scrapbook image"}
             className="w-full h-full object-cover"
+            draggable="false"
           />
         </div>
       );
@@ -151,12 +153,13 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
-          className="scrapbook-sticker"
+          className="scrapbook-sticker absolute"
           style={{
             ...commonStyles,
             width: `${stickerData.width || 80}px`,
             height: `${stickerData.height || 80}px`,
             transform: `${isActive ? 'scale(1.05)' : 'scale(1)'} rotate(${stickerData.rotation || 0}deg)`,
+            transformOrigin: 'center',
           }}
           onMouseDown={onMouseDown}
           onDoubleClick={onDoubleClick}
@@ -166,6 +169,7 @@ export const ScrapbookElementComponent = ({
             src={stickerData.src}
             alt={stickerData.alt || "Sticker"}
             className="w-full h-full object-contain"
+            draggable="false"
           />
         </div>
       );
@@ -174,7 +178,7 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
-          className="scrapbook-element"
+          className="scrapbook-element absolute"
           style={{
             ...commonStyles,
             width: '100px',
