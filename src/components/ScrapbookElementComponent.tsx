@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ScrapbookElement, ElementType, TextElementData, ImageElementData, StickerElementData } from "@/types/scrapbook";
-import { Trash, RotateCw, Maximize, Minimize, Check, X } from "lucide-react";
+import { Trash, RotateCw, Maximize, Minimize, Check, X, Move } from "lucide-react";
 import { TextEditor } from "./editors/TextEditor";
 import { ImageEditor } from "./editors/ImageEditor";
 import { StickerSelector } from "./editors/StickerSelector";
@@ -29,6 +29,17 @@ export const ScrapbookElementComponent = ({
   onUpdate
 }: ScrapbookElementComponentProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [initialTouchDistance, setInitialTouchDistance] = useState(0);
+  const [initialScale, setInitialScale] = useState(1);
+  const [initialTouchAngle, setInitialTouchAngle] = useState(0);
+  const [initialRotation, setInitialRotation] = useState(0);
+  const [isRotating, setIsRotating] = useState(false);
+  const [isScaling, setIsScaling] = useState(false);
+  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
+  
+  const elementRef = useRef<HTMLDivElement>(null);
+  const rotateHandleRef = useRef<HTMLDivElement>(null);
+  const scaleHandleRef = useRef<HTMLDivElement>(null);
 
   const commonStyles = {
     left: `${element.x}px`,
@@ -36,6 +47,16 @@ export const ScrapbookElementComponent = ({
     zIndex: element.zIndex,
     transform: isActive ? 'scale(1.02)' : 'scale(1)',
     border: isActive ? '2px dashed #6366f1' : 'none'
+  };
+
+  // Get current rotation value based on element type
+  const getCurrentRotation = () => {
+    if (element.type === ElementType.IMAGE) {
+      return (element.data as ImageElementData).rotation || 0;
+    } else if (element.type === ElementType.STICKER) {
+      return (element.data as StickerElementData).rotation || 0;
+    }
+    return 0;
   };
 
   const handleRemove = (e: React.MouseEvent) => {
@@ -49,10 +70,7 @@ export const ScrapbookElementComponent = ({
     e.stopPropagation();
     if (onRotate) {
       // Rotate by 15 degrees each click
-      const currentRotation = 
-        element.type === ElementType.IMAGE ? (element.data as ImageElementData).rotation || 0 :
-        element.type === ElementType.STICKER ? (element.data as StickerElementData).rotation || 0 : 0;
-      
+      const currentRotation = getCurrentRotation();
       onRotate(element.id, (currentRotation + 15) % 360);
     }
   };
@@ -80,6 +98,192 @@ export const ScrapbookElementComponent = ({
 
   const handleCancelEditing = () => {
     setIsEditing(false);
+  };
+
+  // Rotation handle drag logic
+  const handleRotateMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!elementRef.current) return;
+    
+    setIsRotating(true);
+    
+    const rect = elementRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Calculate initial angle
+    const initialAngle = Math.atan2(
+      e.clientY - centerY,
+      e.clientX - centerX
+    ) * 180 / Math.PI;
+    
+    setInitialRotation(getCurrentRotation());
+    setStartPoint({ x: e.clientX, y: e.clientY });
+    setInitialTouchAngle(initialAngle);
+    
+    document.addEventListener('mousemove', handleRotateMouseMove);
+    document.addEventListener('mouseup', handleRotateMouseUp);
+  };
+  
+  const handleRotateMouseMove = (e: MouseEvent) => {
+    if (!isRotating || !elementRef.current) return;
+    
+    const rect = elementRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Calculate current angle
+    const currentAngle = Math.atan2(
+      e.clientY - centerY,
+      e.clientX - centerX
+    ) * 180 / Math.PI;
+    
+    // Calculate angle difference
+    const angleDelta = currentAngle - initialTouchAngle;
+    
+    // Calculate new rotation (snap to 15-degree increments)
+    const newRotation = Math.round((initialRotation + angleDelta) / 15) * 15;
+    
+    // Apply rotation
+    if (onRotate) {
+      onRotate(element.id, (newRotation + 360) % 360);
+    }
+  };
+  
+  const handleRotateMouseUp = () => {
+    setIsRotating(false);
+    document.removeEventListener('mousemove', handleRotateMouseMove);
+    document.removeEventListener('mouseup', handleRotateMouseUp);
+  };
+
+  // Scale handle drag logic
+  const handleScaleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!elementRef.current) return;
+    
+    setIsScaling(true);
+    setStartPoint({ x: e.clientX, y: e.clientY });
+    
+    // Find the current scale based on element type
+    let currentScale = 1;
+    if (element.type === ElementType.IMAGE) {
+      const imageData = element.data as ImageElementData;
+      // Approximate scale from width
+      currentScale = (imageData.width || 200) / 200;
+    } else if (element.type === ElementType.STICKER) {
+      const stickerData = element.data as StickerElementData;
+      // Approximate scale from width
+      currentScale = (stickerData.width || 80) / 80;
+    } else if (element.type === ElementType.TEXT) {
+      const textData = element.data as TextElementData;
+      // Approximate scale from font size
+      currentScale = (textData.fontSize || 18) / 18;
+    }
+    
+    setInitialScale(currentScale);
+    
+    document.addEventListener('mousemove', handleScaleMouseMove);
+    document.addEventListener('mouseup', handleScaleMouseUp);
+  };
+  
+  const handleScaleMouseMove = (e: MouseEvent) => {
+    if (!isScaling || !elementRef.current) return;
+    
+    const deltaX = e.clientX - startPoint.x;
+    const deltaY = e.clientY - startPoint.y;
+    
+    // Use the maximum delta for consistent scaling
+    const delta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+    
+    // Scale factor (adjust sensitivity)
+    const scaleFactor = 1 + delta / 200;
+    
+    // Apply scale
+    if (onResize) {
+      onResize(element.id, initialScale * scaleFactor);
+    }
+  };
+  
+  const handleScaleMouseUp = () => {
+    setIsScaling(false);
+    document.removeEventListener('mousemove', handleScaleMouseMove);
+    document.removeEventListener('mouseup', handleScaleMouseUp);
+  };
+
+  // Touch gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      // Get center point between the two touches
+      const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      
+      // Get the distance between the two touch points for scaling
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      
+      // Get the angle between the two touch points for rotation
+      const angle = Math.atan2(
+        e.touches[1].clientY - e.touches[0].clientY,
+        e.touches[1].clientX - e.touches[0].clientX
+      ) * 180 / Math.PI;
+      
+      setInitialTouchDistance(distance);
+      setInitialScale(1); // This will be used as a base, actual scale is determined by element type
+      setInitialTouchAngle(angle);
+      setInitialRotation(getCurrentRotation());
+      
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener('touchcancel', handleTouchEnd);
+    }
+  };
+  
+  const handleTouchMove = (e: TouchEvent) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      
+      // Calculate new distance for scaling
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      
+      // Calculate scale factor
+      const scaleFactor = distance / initialTouchDistance;
+      
+      // Calculate rotation angle
+      const angle = Math.atan2(
+        e.touches[1].clientY - e.touches[0].clientY,
+        e.touches[1].clientX - e.touches[0].clientX
+      ) * 180 / Math.PI;
+      
+      const angleDelta = angle - initialTouchAngle;
+      
+      // Apply both transformations
+      if (onRotate) {
+        const newRotation = (initialRotation + angleDelta + 360) % 360;
+        onRotate(element.id, Math.round(newRotation / 15) * 15); // Snap to 15-degree increments
+      }
+      
+      if (onResize) {
+        onResize(element.id, initialScale * scaleFactor);
+      }
+    }
+  };
+  
+  const handleTouchEnd = () => {
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
+    document.removeEventListener('touchcancel', handleTouchEnd);
   };
 
   // Controls overlay that shows when element is active
@@ -127,6 +331,66 @@ export const ScrapbookElementComponent = ({
           <Trash className="h-4 w-4 text-red-500" />
         </button>
       </div>
+    );
+  };
+
+  // Render transform handles (only when active and not editing)
+  const renderTransformHandles = () => {
+    if (!isActive || isEditing) return null;
+    
+    return (
+      <>
+        {/* Rotation handle */}
+        <div
+          ref={rotateHandleRef}
+          className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rounded-full border-2 border-blue-500 cursor-pointer z-50 flex items-center justify-center"
+          onMouseDown={handleRotateMouseDown}
+          onTouchStart={(e) => {
+            // Handle touch rotation
+            if (e.touches.length === 1) {
+              e.preventDefault();
+              const touch = e.touches[0];
+              handleRotateMouseDown({
+                ...e,
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                preventDefault: () => e.preventDefault(),
+                stopPropagation: () => e.stopPropagation()
+              } as any);
+            }
+          }}
+        >
+          <RotateCw className="h-3 w-3 text-blue-500" />
+        </div>
+        
+        {/* Scale handle */}
+        <div
+          ref={scaleHandleRef}
+          className="absolute -bottom-6 -right-6 w-6 h-6 bg-white rounded-full border-2 border-green-500 cursor-nwse-resize z-50 flex items-center justify-center"
+          onMouseDown={handleScaleMouseDown}
+          onTouchStart={(e) => {
+            // Handle touch scaling
+            if (e.touches.length === 1) {
+              e.preventDefault();
+              const touch = e.touches[0];
+              handleScaleMouseDown({
+                ...e,
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                preventDefault: () => e.preventDefault(),
+                stopPropagation: () => e.stopPropagation()
+              } as any);
+            }
+          }}
+        >
+          <Maximize className="h-3 w-3 text-green-500" />
+        </div>
+        
+        {/* Drag indicator */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 pointer-events-none opacity-30 flex items-center justify-center">
+          <Move className="h-6 w-6 text-gray-500" />
+        </div>
+      </>
     );
   };
 
@@ -189,6 +453,7 @@ export const ScrapbookElementComponent = ({
     return (
       <div
         id={element.id}
+        ref={elementRef}
         className="scrapbook-element-editor absolute"
         style={{
           ...commonStyles,
@@ -210,6 +475,7 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
+          ref={elementRef}
           className="scrapbook-text absolute"
           style={{
             ...commonStyles,
@@ -221,12 +487,15 @@ export const ScrapbookElementComponent = ({
             padding: '8px',
             maxWidth: '300px',
             textAlign: textData.textAlign || 'left' as any,
-            fontWeight: textData.fontWeight || 'normal'
+            fontWeight: textData.fontWeight || 'normal',
+            fontStyle: textData.fontStyle || 'normal'
           }}
           onMouseDown={onMouseDown}
           onDoubleClick={(e) => handleStartEditing(e)}
+          onTouchStart={handleTouchStart}
         >
           {renderControls()}
+          {renderTransformHandles()}
           {textData.content}
         </div>
       );
@@ -236,6 +505,7 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
+          ref={elementRef}
           className="scrapbook-photo absolute"
           style={{
             ...commonStyles,
@@ -246,13 +516,22 @@ export const ScrapbookElementComponent = ({
           }}
           onMouseDown={onMouseDown}
           onDoubleClick={(e) => handleStartEditing(e)}
+          onTouchStart={handleTouchStart}
         >
           {renderControls()}
+          {renderTransformHandles()}
           <img
             src={imageData.src}
             alt={imageData.alt || "Scrapbook image"}
             className="w-full h-full object-contain"
             draggable="false"
+            style={{
+              filter: imageData.filters ? 
+                `brightness(${imageData.filters.brightness || 100}%) 
+                contrast(${imageData.filters.contrast || 100}%) 
+                saturate(${imageData.filters.saturation || 100}%)` : 
+                'none'
+            }}
           />
         </div>
       );
@@ -262,6 +541,7 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
+          ref={elementRef}
           className="scrapbook-sticker absolute"
           style={{
             ...commonStyles,
@@ -272,8 +552,10 @@ export const ScrapbookElementComponent = ({
           }}
           onMouseDown={onMouseDown}
           onDoubleClick={(e) => handleStartEditing(e)}
+          onTouchStart={handleTouchStart}
         >
           {renderControls()}
+          {renderTransformHandles()}
           <img
             src={stickerData.src}
             alt={stickerData.alt || "Sticker"}
@@ -287,6 +569,7 @@ export const ScrapbookElementComponent = ({
       return (
         <div
           id={element.id}
+          ref={elementRef}
           className="scrapbook-element absolute"
           style={{
             ...commonStyles,
@@ -296,8 +579,10 @@ export const ScrapbookElementComponent = ({
           }}
           onMouseDown={onMouseDown}
           onDoubleClick={(e) => handleStartEditing(e)}
+          onTouchStart={handleTouchStart}
         >
           {renderControls()}
+          {renderTransformHandles()}
           Unknown Element
         </div>
       );

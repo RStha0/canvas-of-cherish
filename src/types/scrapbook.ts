@@ -15,6 +15,7 @@ export interface TextElementData {
   backgroundColor?: string;
   textAlign?: 'left' | 'center' | 'right';
   fontWeight?: string;
+  fontStyle?: string;
 }
 
 export interface ImageElementData {
@@ -23,6 +24,11 @@ export interface ImageElementData {
   width?: number;
   height?: number;
   rotation?: number;
+  filters?: {
+    brightness?: number;
+    contrast?: number;
+    saturation?: number;
+  };
 }
 
 export interface StickerElementData {
