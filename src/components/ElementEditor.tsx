@@ -85,20 +85,31 @@ export const ElementEditor = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex items-center justify-between">
+      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogHeader className="flex flex-row justify-between items-center">
           <DialogTitle>Edit {element.type}</DialogTitle>
-          {onElementRemove && (
+          <div className="flex gap-2">
+            {onElementRemove && (
+              <button 
+                onClick={handleRemove}
+                className="p-1 hover:bg-red-100 rounded-md"
+                aria-label="Remove element"
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </button>
+            )}
             <button 
-              onClick={handleRemove}
-              className="p-1 hover:bg-red-100 rounded-md"
-              aria-label="Remove element"
+              onClick={onClose}
+              className="p-1 hover:bg-muted rounded-md"
+              aria-label="Close"
             >
-              <X className="h-4 w-4 text-red-500" />
+              <X className="h-4 w-4" />
             </button>
-          )}
+          </div>
         </DialogHeader>
-        {renderEditor()}
+        <div className="overflow-y-auto pr-1">
+          {renderEditor()}
+        </div>
       </DialogContent>
     </Dialog>
   );
