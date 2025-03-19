@@ -189,9 +189,12 @@ const ScrapbookPage = () => {
     <div className="min-h-screen flex flex-col bg-secondary">
       <ScrapbookHeader />
       
-      <main className="flex-1 container px-0 py-0 md:px-4 md:py-8 flex flex-col">
-        <div ref={canvasRef} className="flex-grow flex justify-center items-center">
-          <div className={`w-full h-full ${isMobile ? 'aspect-square max-h-[calc(100vh-170px)]' : ''}`}>
+      <main className="flex-1 flex flex-col h-[calc(100vh-64px)]">
+        <div 
+          ref={canvasRef} 
+          className="flex-grow flex justify-center items-center p-2 sm:p-4 overflow-hidden"
+        >
+          <div className={`w-full h-full max-h-full ${isMobile ? 'aspect-square' : ''}`}>
             <ScrapbookPageCanvas 
               elements={currentPage.elements}
               onElementsChange={handleElementsChange}
@@ -202,7 +205,7 @@ const ScrapbookPage = () => {
         </div>
         
         {!isMobile && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-8 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 bg-background border-t">
             <div className="lg:col-span-3">
               <ScrapbookNavigation 
                 currentPage={currentPageIndex + 1}
@@ -222,7 +225,7 @@ const ScrapbookPage = () => {
         )}
         
         {isMobile && (
-          <>
+          <div className="p-2 bg-background border-t">
             <ScrapbookNavigation 
               currentPage={currentPageIndex + 1}
               totalPages={scrapbook.pages.length}
@@ -235,7 +238,7 @@ const ScrapbookPage = () => {
               onSave={handleSave}
               onShare={handleShare}
             />
-          </>
+          </div>
         )}
       </main>
 

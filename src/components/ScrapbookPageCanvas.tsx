@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { ScrapbookElement, ElementType, ImageElementData, StickerElementData, TextElementData } from "@/types/scrapbook";
 import { ScrapbookElementComponent } from "./ScrapbookElementComponent";
@@ -106,12 +105,17 @@ export const ScrapbookPageCanvas = ({
         switch (el.type) {
           case ElementType.IMAGE: {
             const imageData = el.data as ImageElementData;
+            const aspectRatio = (imageData.width && imageData.height) ? 
+              (imageData.width / imageData.height) : 1;
+              
+            const newWidth = Math.max(50, Math.round((imageData.width || 200) * scale));
+            
             return {
               ...el,
               data: {
                 ...imageData,
-                width: Math.max(50, Math.round((imageData.width || 200) * scale)),
-                height: Math.max(50, Math.round((imageData.height || 150) * scale))
+                width: newWidth,
+                height: Math.round(newWidth / aspectRatio)
               }
             };
           }
@@ -240,7 +244,7 @@ export const ScrapbookPageCanvas = ({
   return (
     <div 
       ref={canvasRef} 
-      className={`scrapbook-canvas ${background} page-shadow relative`}
+      className={`scrapbook-canvas ${background} page-shadow relative h-full`}
     >
       {elements.map((element) => (
         <ScrapbookElementComponent

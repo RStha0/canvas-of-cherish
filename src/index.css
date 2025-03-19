@@ -87,6 +87,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
   }
 }
 
@@ -94,6 +95,9 @@
   .scrapbook-canvas {
     @apply bg-scrapbook-page rounded-lg shadow-page p-6 relative overflow-hidden;
     aspect-ratio: 4/3;
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
   }
   
   .scrapbook-element {
@@ -123,8 +127,10 @@
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .scrapbook-canvas {
-      height: calc(100vh - 140px); /* Increased height */
-      aspect-ratio: unset;
+      height: 100%;
+      max-height: 100%;
+      width: 100%;
+      aspect-ratio: 1/1;
       @apply p-4;
     }
     

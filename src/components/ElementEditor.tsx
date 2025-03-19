@@ -5,6 +5,14 @@ import { ImageEditor } from "./editors/ImageEditor";
 import { StickerSelector } from "./editors/StickerSelector";
 import { ScrapbookElement, ElementType } from "@/types/scrapbook";
 import { X } from "lucide-react";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose
+} from "@/components/ui/drawer";
 
 interface ElementEditorProps {
   isOpen: boolean;
@@ -21,6 +29,8 @@ export const ElementEditor = ({
   onElementUpdate,
   onElementRemove
 }: ElementEditorProps) => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   if (!element) return null;
 
   const handleRemove = () => {
@@ -44,9 +54,38 @@ export const ElementEditor = ({
     }
   };
 
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DrawerContent className="max-h-[85vh] overflow-y-auto">
+          <DrawerHeader className="flex flex-row justify-between items-center">
+            <DrawerTitle>Edit {element.type}</DrawerTitle>
+            <div className="flex gap-2">
+              {onElementRemove && (
+                <button 
+                  onClick={handleRemove}
+                  className="p-1 hover:bg-red-100 rounded-md"
+                  aria-label="Remove element"
+                >
+                  <X className="h-4 w-4 text-red-500" />
+                </button>
+              )}
+              <DrawerClose className="p-1 hover:bg-muted rounded-md">
+                <X className="h-4 w-4" />
+              </DrawerClose>
+            </div>
+          </DrawerHeader>
+          <div className="p-4 pb-8">
+            {renderEditor()}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex items-center justify-between">
           <DialogTitle>Edit {element.type}</DialogTitle>
           {onElementRemove && (
