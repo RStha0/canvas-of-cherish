@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ScrapbookHeader } from "@/components/ScrapbookHeader";
@@ -60,7 +59,6 @@ const ScrapbookPage = () => {
   };
 
   const handleAddElement = (elementType: ElementType) => {
-    // For mobile, center the new element in the visible area of the canvas
     let centerX = 200;
     let centerY = 200;
     
@@ -129,7 +127,6 @@ const ScrapbookPage = () => {
     
     handleElementsChange([...currentPage.elements, newElement]);
     
-    // Open the editor immediately for new elements
     setTimeout(() => {
       handleEditElement(newElement);
     }, 100);
@@ -176,12 +173,10 @@ const ScrapbookPage = () => {
   };
 
   const handleSave = () => {
-    // In a real app, this would save to a database or local storage
     toast.success("Scrapbook saved successfully!");
   };
 
   const handleShare = () => {
-    // In a real app, this would generate a snapshot and open share options
     toast.success("Ready to share your scrapbook page!");
   };
 
@@ -189,12 +184,12 @@ const ScrapbookPage = () => {
     <div className="min-h-screen flex flex-col bg-secondary">
       <ScrapbookHeader />
       
-      <main className="flex-1 flex flex-col h-[calc(100vh-64px)]">
+      <main className="flex-1 flex flex-col">
         <div 
           ref={canvasRef} 
-          className="flex-1 flex justify-center items-center p-0 sm:p-1 overflow-hidden"
+          className="flex-1 flex justify-center items-center p-0 overflow-hidden"
         >
-          <div className={`w-full h-full ${isMobile ? 'aspect-square max-h-[calc(100vh-130px)]' : 'aspect-[4/3]'}`}>
+          <div className="w-full h-full">
             <ScrapbookPageCanvas 
               elements={currentPage.elements}
               onElementsChange={handleElementsChange}
@@ -205,7 +200,7 @@ const ScrapbookPage = () => {
         </div>
         
         {!isMobile && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 p-2 bg-background border-t">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-1 p-1 bg-background border-t">
             <div className="lg:col-span-3">
               <ScrapbookNavigation 
                 currentPage={currentPageIndex + 1}

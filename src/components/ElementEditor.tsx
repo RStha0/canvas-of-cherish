@@ -1,18 +1,17 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 import { TextEditor } from "./editors/TextEditor";
 import { ImageEditor } from "./editors/ImageEditor";
 import { StickerSelector } from "./editors/StickerSelector";
 import { ScrapbookElement, ElementType } from "@/types/scrapbook";
-import { X } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerClose
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose
+} from "@/components/ui/sheet";
 
 interface ElementEditorProps {
   isOpen: boolean;
@@ -54,40 +53,11 @@ export const ElementEditor = ({
     }
   };
 
-  if (isMobile) {
-    return (
-      <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DrawerContent className="max-h-[85vh] overflow-y-auto">
-          <DrawerHeader className="flex flex-row justify-between items-center">
-            <DrawerTitle>Edit {element.type}</DrawerTitle>
-            <div className="flex gap-2">
-              {onElementRemove && (
-                <button 
-                  onClick={handleRemove}
-                  className="p-1 hover:bg-red-100 rounded-md"
-                  aria-label="Remove element"
-                >
-                  <X className="h-4 w-4 text-red-500" />
-                </button>
-              )}
-              <DrawerClose className="p-1 hover:bg-muted rounded-md">
-                <X className="h-4 w-4" />
-              </DrawerClose>
-            </div>
-          </DrawerHeader>
-          <div className="p-4 pb-8">
-            {renderEditor()}
-          </div>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row justify-between items-center sticky top-0 bg-background z-10 pb-2 border-b">
-          <DialogTitle>Edit {element.type}</DialogTitle>
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "h-[85vh] pb-12" : "w-[400px] max-w-full"}>
+        <SheetHeader className="sticky top-0 z-10 bg-background border-b pb-2 flex flex-row justify-between items-center">
+          <SheetTitle>Edit {element.type}</SheetTitle>
           <div className="flex gap-2">
             {onElementRemove && (
               <button 
@@ -98,19 +68,15 @@ export const ElementEditor = ({
                 <X className="h-4 w-4 text-red-500" />
               </button>
             )}
-            <button 
-              onClick={onClose}
-              className="p-1 hover:bg-muted rounded-md"
-              aria-label="Close"
-            >
+            <SheetClose className="p-1 hover:bg-muted rounded-md">
               <X className="h-4 w-4" />
-            </button>
+            </SheetClose>
           </div>
-        </DialogHeader>
-        <div className="overflow-y-auto pr-1 py-2">
+        </SheetHeader>
+        <div className="pt-4 overflow-y-auto h-full pb-16">
           {renderEditor()}
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
