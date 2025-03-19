@@ -1,11 +1,10 @@
-
 import { useState, useRef, useEffect } from "react";
 import { ScrapbookElement, ImageElementData } from "@/types/scrapbook";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { ImagePlus, RotateCcw, RotateCw, Maximize, Minimize, Crop, ImageFilter, Contrast, Droplet } from "lucide-react";
+import { ImagePlus, RotateCcw, RotateCw, Maximize, Minimize, Crop, Filter, Contrast, Droplet } from "lucide-react";
 import { toast } from "sonner";
 import { 
   ResizablePanelGroup,
@@ -359,7 +358,7 @@ export const ImageEditor = ({ element, onUpdate }: ImageEditorProps) => {
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <Label htmlFor="saturation-slider" className="text-xs text-muted-foreground">Saturation</Label>
-                <ImageFilter className="h-4 w-4 text-muted-foreground" />
+                <Filter className="h-4 w-4 text-muted-foreground" />
               </div>
               <Slider 
                 id="saturation-slider"
