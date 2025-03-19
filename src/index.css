@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 
@@ -92,10 +93,9 @@
 
 @layer components {
   .scrapbook-canvas {
-    @apply bg-scrapbook-page rounded-lg shadow-page p-6 relative overflow-hidden;
+    @apply bg-scrapbook-page rounded-lg shadow-page p-4 sm:p-6 relative overflow-hidden;
     aspect-ratio: 4/3;
     height: 100%;
-    max-height: 100%;
     width: 100%;
   }
   
@@ -129,7 +129,7 @@
       height: 100%;
       width: 100%;
       aspect-ratio: 1/1;
-      @apply p-4;
+      @apply p-3;
     }
     
     /* Controls styles for mobile */
@@ -139,6 +139,10 @@
     .scrapbook-photo .controls {
       @apply flex absolute -top-8 right-0 bg-white/90 rounded-t-md shadow-sm p-1 gap-1;
     }
+
+    /* Ensure the mobile drawer has enough space for the content */
+    .drawer-content {
+      @apply max-h-[80vh] overflow-y-auto pb-16;
+    }
   }
 }
-

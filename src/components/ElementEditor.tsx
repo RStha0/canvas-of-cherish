@@ -86,7 +86,7 @@ export const ElementEditor = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row justify-between items-center">
+        <DialogHeader className="flex flex-row justify-between items-center sticky top-0 bg-background z-10 pb-2 border-b">
           <DialogTitle>Edit {element.type}</DialogTitle>
           <div className="flex gap-2">
             {onElementRemove && (
@@ -107,7 +107,7 @@ export const ElementEditor = ({
             </button>
           </div>
         </DialogHeader>
-        <div className="overflow-y-auto pr-1">
+        <div className="overflow-y-auto pr-1 py-2">
           {renderEditor()}
         </div>
       </DialogContent>

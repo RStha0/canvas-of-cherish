@@ -192,9 +192,9 @@ const ScrapbookPage = () => {
       <main className="flex-1 flex flex-col h-[calc(100vh-64px)]">
         <div 
           ref={canvasRef} 
-          className="flex-1 flex justify-center items-center p-1 sm:p-2 overflow-hidden"
+          className="flex-1 flex justify-center items-center p-0 sm:p-1 overflow-hidden"
         >
-          <div className={`w-full h-full max-h-full ${isMobile ? 'aspect-square' : 'aspect-[4/3]'}`}>
+          <div className={`w-full h-full ${isMobile ? 'aspect-square max-h-[calc(100vh-130px)]' : 'aspect-[4/3]'}`}>
             <ScrapbookPageCanvas 
               elements={currentPage.elements}
               onElementsChange={handleElementsChange}
@@ -225,7 +225,7 @@ const ScrapbookPage = () => {
         )}
         
         {isMobile && (
-          <div className="p-2 bg-background border-t">
+          <div className="p-1 bg-background border-t">
             <ScrapbookNavigation 
               currentPage={currentPageIndex + 1}
               totalPages={scrapbook.pages.length}

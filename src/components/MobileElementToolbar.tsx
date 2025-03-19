@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ElementType } from "@/types/scrapbook";
-import { Image, Type, Sticker, Share, X, Plus, Download, Palette } from "lucide-react";
+import { Image, Type, Sticker, Share, Plus, Download } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "sonner";
 
@@ -43,87 +43,87 @@ export const MobileElementToolbar = ({
   ];
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center">
-      <div className="inline-flex items-center gap-2 p-2 bg-secondary/80 backdrop-blur-sm rounded-full shadow-lg border">
+    <div className="fixed bottom-2 left-0 right-0 z-50 flex justify-center">
+      <div className="inline-flex items-center gap-1 p-1.5 bg-secondary/80 backdrop-blur-sm rounded-full shadow-lg border">
         {/* Quick Access Buttons */}
         <Button 
           variant="outline" 
           size="icon" 
-          className="rounded-full bg-primary/10" 
+          className="rounded-full bg-primary/10 h-9 w-9" 
           onClick={handleAddText}
         >
-          <Type className="h-5 w-5" />
+          <Type className="h-4 w-4" />
         </Button>
         
         <Button 
           variant="outline" 
           size="icon" 
-          className="rounded-full bg-primary/10" 
+          className="rounded-full bg-primary/10 h-9 w-9" 
           onClick={handleAddImage}
         >
-          <Image className="h-5 w-5" />
+          <Image className="h-4 w-4" />
         </Button>
         
         <Button 
           variant="outline" 
           size="icon" 
-          className="rounded-full bg-primary/10" 
+          className="rounded-full bg-primary/10 h-9 w-9" 
           onClick={handleAddSticker}
         >
-          <Sticker className="h-5 w-5" />
+          <Sticker className="h-4 w-4" />
         </Button>
         
         {/* More Options Sheet */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="default" size="icon" className="rounded-full">
-              <Plus className="h-6 w-6" />
+            <Button variant="default" size="icon" className="rounded-full h-9 w-9">
+              <Plus className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="rounded-t-xl">
-            <div className="pt-6 pb-16 space-y-5">
+          <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh] overflow-y-auto">
+            <div className="pt-2 pb-12 space-y-4">
               <h3 className="text-lg font-handwritten text-center">Customize Your Page</h3>
               
               <div className="space-y-2">
-                <h4 className="text-sm font-medium mb-2">Add Elements</h4>
+                <h4 className="text-sm font-medium mb-1">Add Elements</h4>
                 <div className="grid grid-cols-3 gap-2">
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="flex flex-col h-20 gap-1 items-center justify-center" 
+                    className="flex flex-col h-16 gap-1 items-center justify-center" 
                     onClick={handleAddText}
                   >
-                    <Type className="h-6 w-6" />
+                    <Type className="h-5 w-5" />
                     <span className="text-xs">Text</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="flex flex-col h-20 gap-1 items-center justify-center" 
+                    className="flex flex-col h-16 gap-1 items-center justify-center" 
                     onClick={handleAddImage}
                   >
-                    <Image className="h-6 w-6" />
+                    <Image className="h-5 w-5" />
                     <span className="text-xs">Photo</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="flex flex-col h-20 gap-1 items-center justify-center" 
+                    className="flex flex-col h-16 gap-1 items-center justify-center" 
                     onClick={handleAddSticker}
                   >
-                    <Sticker className="h-6 w-6" />
+                    <Sticker className="h-5 w-5" />
                     <span className="text-xs">Sticker</span>
                   </Button>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-sm font-medium mb-2">Page Background</h4>
+                <h4 className="text-sm font-medium mb-1">Page Background</h4>
                 <div className="grid grid-cols-3 gap-2">
                   {backgrounds.map((bg) => (
                     <div
                       key={bg.value}
-                      className={`h-14 rounded cursor-pointer border-2 flex items-center justify-center ${bg.value === "bg-scrapbook-page texture-paper" ? "texture-paper" : bg.value}`}
+                      className={`h-12 rounded cursor-pointer border-2 flex items-center justify-center ${bg.value === "bg-scrapbook-page texture-paper" ? "texture-paper" : bg.value}`}
                       onClick={() => {
                         onChangeBackground(bg.value);
                         toast.success(`Background changed to ${bg.name}`);
@@ -137,18 +137,18 @@ export const MobileElementToolbar = ({
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <Button
                   variant="outline"
                   onClick={onSave}
-                  className="h-12"
+                  className="h-10"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Save
                 </Button>
                 <Button
                   onClick={onShare}
-                  className="h-12"
+                  className="h-10"
                 >
                   <Share className="h-4 w-4 mr-2" />
                   Share
@@ -161,10 +161,10 @@ export const MobileElementToolbar = ({
         <Button 
           variant="outline" 
           size="icon" 
-          className="rounded-full bg-primary/10" 
+          className="rounded-full bg-primary/10 h-9 w-9" 
           onClick={onShare}
         >
-          <Share className="h-5 w-5" />
+          <Share className="h-4 w-4" />
         </Button>
       </div>
     </div>
